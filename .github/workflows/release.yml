@@ -25,14 +25,14 @@ jobs:
       shell: pwsh
 
     - name: Restore dependencies
-      run: dotnet restore src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj
+      run: dotnet restore src/FlaUI.Mcp/FlaUI.Mcp.csproj
 
     - name: Build Release
-      run: dotnet build src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj --configuration Release --no-restore
+      run: dotnet build src/FlaUI.Mcp/FlaUI.Mcp.csproj --configuration Release --no-restore
 
     - name: Publish self-contained
       run: |
-        dotnet publish src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj `
+        dotnet publish src/FlaUI.Mcp/FlaUI.Mcp.csproj `
           --configuration Release `
           --runtime win-x64 `
           --self-contained true `
@@ -42,7 +42,7 @@ jobs:
 
     - name: Publish framework-dependent
       run: |
-        dotnet publish src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj `
+        dotnet publish src/FlaUI.Mcp/FlaUI.Mcp.csproj `
           --configuration Release `
           --runtime win-x64 `
           --self-contained false `
