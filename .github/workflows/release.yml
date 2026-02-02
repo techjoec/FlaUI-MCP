@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Get version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    - name: Restore dependencies
+      run: dotnet restore src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj
+
+    - name: Build Release
+      run: dotnet build src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj --configuration Release --no-restore
+
+    - name: Publish self-contained
+      run: |
+        dotnet publish src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ./publish/self-contained `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true
+
+    - name: Publish framework-dependent
+      run: |
+        dotnet publish src/PlaywrightWindows.Mcp/PlaywrightWindows.Mcp.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained false `
+          --output ./publish/framework-dependent
+
+    - name: Create ZIP archives
+      run: |
+        Compress-Archive -Path ./publish/self-contained/* -DestinationPath ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64-self-contained.zip
+        Compress-Archive -Path ./publish/framework-dependent/* -DestinationPath ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64.zip
+      shell: pwsh
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: FlaUI-MCP v${{ steps.version.outputs.VERSION }}
+        body: |
+          ## FlaUI-MCP v${{ steps.version.outputs.VERSION }}
+          
+          An MCP server for Windows desktop automation using accessibility APIs.
+          
+          ### Downloads
+          
+          - **Self-contained** (`-self-contained.zip`): Includes .NET runtime, no prerequisites needed
+          - **Framework-dependent** (`.zip`): Requires .NET 8.0 runtime installed
+          
+          ### Installation
+          
+          1. Download and extract the ZIP
+          2. Add to your MCP config:
+          ```json
+          {
+            "mcpServers": {
+              "windows": {
+                "type": "local",
+                "command": "C:\\path\\to\\FlaUI.Mcp.exe",
+                "tools": ["*"]
+              }
+            }
+          }
+          ```
+          
+          See [README](https://github.com/shanselman/FlaUI-MCP#readme) for full documentation.
+        files: |
+          ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64-self-contained.zip
+          ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64.zip
+        draft: false
+        prerelease: false
