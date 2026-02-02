@@ -10,33 +10,47 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    
+    strategy:
+      matrix:
+        include:
+          - runtime: win-x64
+            artifact_name: FlaUI-MCP-win-x64
+          - runtime: win-arm64
+            artifact_name: FlaUI-MCP-win-arm64
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    - name: Get version from tag
-      id: version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
-      shell: pwsh
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v1
+      with:
+        versionSpec: '5.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v1
+      with:
+        useConfigFile: true
 
     - name: Restore dependencies
       run: dotnet restore src/FlaUI.Mcp/FlaUI.Mcp.csproj
-
-    - name: Build Release
-      run: dotnet build src/FlaUI.Mcp/FlaUI.Mcp.csproj --configuration Release --no-restore
 
     - name: Publish self-contained
       run: |
         dotnet publish src/FlaUI.Mcp/FlaUI.Mcp.csproj `
           --configuration Release `
-          --runtime win-x64 `
+          --runtime ${{ matrix.runtime }} `
           --self-contained true `
           --output ./publish/self-contained `
+          -p:Version=${{ steps.gitversion.outputs.semVer }} `
           -p:PublishSingleFile=true `
           -p:IncludeNativeLibrariesForSelfExtract=true
 
@@ -44,33 +58,77 @@ jobs:
       run: |
         dotnet publish src/FlaUI.Mcp/FlaUI.Mcp.csproj `
           --configuration Release `
-          --runtime win-x64 `
+          --runtime ${{ matrix.runtime }} `
           --self-contained false `
-          --output ./publish/framework-dependent
+          --output ./publish/framework-dependent `
+          -p:Version=${{ steps.gitversion.outputs.semVer }}
 
     - name: Create ZIP archives
       run: |
-        Compress-Archive -Path ./publish/self-contained/* -DestinationPath ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64-self-contained.zip
-        Compress-Archive -Path ./publish/framework-dependent/* -DestinationPath ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64.zip
+        Compress-Archive -Path ./publish/self-contained/* -DestinationPath ./${{ matrix.artifact_name }}-${{ steps.gitversion.outputs.semVer }}-self-contained.zip
+        Compress-Archive -Path ./publish/framework-dependent/* -DestinationPath ./${{ matrix.artifact_name }}-${{ steps.gitversion.outputs.semVer }}.zip
       shell: pwsh
+
+    - name: Upload Release Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-${{ matrix.runtime }}
+        path: ./*.zip
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v1
+      with:
+        versionSpec: '5.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v1
+      with:
+        useConfigFile: true
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        pattern: release-*
+        merge-multiple: true
+
+    - name: List artifacts
+      run: ls -la artifacts/
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        name: FlaUI-MCP v${{ steps.version.outputs.VERSION }}
+        name: FlaUI-MCP v${{ steps.gitversion.outputs.semVer }}
         body: |
-          ## FlaUI-MCP v${{ steps.version.outputs.VERSION }}
+          ## FlaUI-MCP v${{ steps.gitversion.outputs.semVer }}
           
           An MCP server for Windows desktop automation using accessibility APIs.
           
           ### Downloads
           
-          - **Self-contained** (`-self-contained.zip`): Includes .NET runtime, no prerequisites needed
-          - **Framework-dependent** (`.zip`): Requires .NET 8.0 runtime installed
+          | Platform | Self-contained | Framework-dependent |
+          |----------|---------------|---------------------|
+          | Windows x64 | `FlaUI-MCP-win-x64-*-self-contained.zip` | `FlaUI-MCP-win-x64-*.zip` |
+          | Windows ARM64 | `FlaUI-MCP-win-arm64-*-self-contained.zip` | `FlaUI-MCP-win-arm64-*.zip` |
+          
+          - **Self-contained**: Includes .NET runtime, no prerequisites needed
+          - **Framework-dependent**: Requires .NET 8.0 runtime installed
           
           ### Installation
           
-          1. Download and extract the ZIP
+          1. Download and extract the appropriate ZIP for your platform
           2. Add to your MCP config:
           ```json
           {
@@ -85,8 +143,6 @@ jobs:
           ```
           
           See [README](https://github.com/shanselman/FlaUI-MCP#readme) for full documentation.
-        files: |
-          ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64-self-contained.zip
-          ./FlaUI-MCP-${{ steps.version.outputs.VERSION }}-win-x64.zip
+        files: artifacts/*.zip
         draft: false
         prerelease: false
