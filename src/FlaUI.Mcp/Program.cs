@@ -22,6 +22,7 @@ toolRegistry.RegisterTool(new BatchTool(sessionManager, elementRegistry));
 toolRegistry.RegisterTool(new StatusTool(sessionManager));
 toolRegistry.RegisterTool(new FindTool(sessionManager));
 toolRegistry.RegisterTool(new PeekTool(sessionManager));
+toolRegistry.RegisterTool(new ReadTool(sessionManager));
 
 // Create and run MCP server
 var server = new McpServer(toolRegistry);
