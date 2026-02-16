@@ -4,7 +4,7 @@ using PlaywrightWindows.Mcp.Tools;
 
 // Create shared services
 var sessionManager = new SessionManager();
-var elementRegistry = new ElementRegistry();
+var elementRegistry = sessionManager.Elements;
 
 // Register all tools
 var toolRegistry = new ToolRegistry();
