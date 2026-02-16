@@ -87,6 +87,32 @@ Or using `dotnet run`:
 }
 ```
 
+### Remote Usage (SSH from Linux/Mac)
+
+If you're running Claude Code on Linux/Mac with the Windows desktop in a VM, you can connect via SSH:
+
+```json
+{
+  "mcpServers": {
+    "flaui": {
+      "command": "ssh",
+      "args": [
+        "-o", "ServerAliveInterval=30",
+        "-o", "ServerAliveCountMax=3",
+        "windows-vm",
+        "dotnet", "C:/path/to/FlaUI.Mcp.dll"
+      ]
+    }
+  }
+}
+```
+
+See [Remote SSH Setup](docs/remote-ssh-setup.md) for complete instructions on:
+- Installing OpenSSH Server on Windows
+- Configuring key-based authentication
+- Setting up the SSH client config
+- Troubleshooting connection issues
+
 ## Available Tools
 
 | Tool | Description |
