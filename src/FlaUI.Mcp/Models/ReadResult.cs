@@ -27,7 +27,9 @@ public class ReadResult : IToolResult
     public string ToCompactString()
     {
         if (!Found)
-            return $"Region '{Region}': not found. {Message}";
+            return string.IsNullOrEmpty(Message)
+                ? $"Region '{Region}': not found"
+                : $"Region '{Region}': not found. {Message}";
 
         var sb = new StringBuilder();
         sb.AppendLine($"=== {Region.ToUpper()} ({ElementCount} elements) ===");
