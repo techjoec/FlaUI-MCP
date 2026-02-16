@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PlaywrightWindows.Mcp.Models;
 
 namespace PlaywrightWindows.Mcp;
 
@@ -128,5 +129,53 @@ public abstract class ToolBase : ITool
         if (arguments == null) return defaultValue;
         if (!arguments.Value.TryGetProperty(name, out var prop)) return defaultValue;
         return prop.GetBoolean();
+    }
+
+    protected int GetIntArgument(JsonElement? arguments, string name, int defaultValue = 0)
+    {
+        if (arguments == null) return defaultValue;
+        if (!arguments.Value.TryGetProperty(name, out var prop)) return defaultValue;
+        if (prop.ValueKind == JsonValueKind.Number)
+            return prop.GetInt32();
+        return defaultValue;
+    }
+
+    protected Dictionary<string, object>? GetObjectArgument(JsonElement? arguments, string name)
+    {
+        if (arguments == null) return null;
+        if (!arguments.Value.TryGetProperty(name, out var prop)) return null;
+        if (prop.ValueKind == JsonValueKind.Object)
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(prop.GetRawText(), McpProtocol.JsonOptions);
+        return null;
+    }
+
+    protected static string? Truncate(string? value, int maxLength)
+    {
+        if (value == null) return null;
+        return value.Length <= maxLength ? value : value[..maxLength] + "...";
+    }
+
+    protected static McpToolResult SuccessResult(IToolResult result)
+    {
+        return new McpToolResult
+        {
+            Content = new List<McpContent>
+            {
+                new() { Type = "text", Text = JsonSerializer.Serialize(result.ToStructuredData(), McpProtocol.JsonOptions) }
+            },
+            IsError = false
+        };
+    }
+
+    protected static McpToolResult ErrorResult(McpError error)
+    {
+        return new McpToolResult
+        {
+            Content = new List<McpContent>
+            {
+                new() { Type = "text", Text = JsonSerializer.Serialize(new { error }, McpProtocol.JsonOptions) }
+            },
+            IsError = true
+        };
     }
 }
