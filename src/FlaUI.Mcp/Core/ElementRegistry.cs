@@ -55,4 +55,9 @@ public class ElementRegistry
     {
         return _elements.ContainsKey(refId);
     }
+
+    /// <summary>
+    /// Total number of registered elements
+    /// </summary>
+    public int Count => _elements.Count;
 }

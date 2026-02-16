@@ -13,8 +13,19 @@ public class SessionManager : IDisposable
     private readonly UIA3Automation _automation;
     private readonly Dictionary<string, FlaUIApplication> _applications = new();
     private readonly Dictionary<string, Window> _windows = new();
+    private readonly ElementRegistry _elementRegistry = new();
     private int _appCounter = 0;
     private int _windowCounter = 0;
+
+    /// <summary>
+    /// Count of currently tracked windows
+    /// </summary>
+    public int ActiveWindowCount => _windows.Count;
+
+    /// <summary>
+    /// Total elements registered across all windows
+    /// </summary>
+    public int TotalElementCount => _elementRegistry.Count;
 
     public SessionManager()
     {
@@ -120,6 +131,34 @@ public class SessionManager : IDisposable
         _windows[handle] = window;
         return handle;
     }
+
+    /// <summary>
+    /// Get existing handle or create new one for a window
+    /// </summary>
+    public string GetOrCreateHandle(Window? window)
+    {
+        if (window == null) return string.Empty;
+
+        // Check if already registered
+        var existing = _windows.FirstOrDefault(kvp => kvp.Value.Equals(window));
+        if (existing.Value != null)
+            return existing.Key;
+
+        return RegisterWindow(window);
+    }
+
+    /// <summary>
+    /// Register an element and get its ref ID
+    /// </summary>
+    public string RegisterElement(string windowHandle, AutomationElement element)
+    {
+        return _elementRegistry.Register(windowHandle, element);
+    }
+
+    /// <summary>
+    /// Access to the element registry for element lookups
+    /// </summary>
+    public ElementRegistry Elements => _elementRegistry;
 
     public Window? GetWindow(string handle)
     {
