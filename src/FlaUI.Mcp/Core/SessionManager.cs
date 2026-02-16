@@ -14,7 +14,6 @@ public class SessionManager : IDisposable
     private readonly Dictionary<string, FlaUIApplication> _applications = new();
     private readonly Dictionary<string, Window> _windows = new();
     private readonly ElementRegistry _elementRegistry = new();
-    private int _appCounter = 0;
     private int _windowCounter = 0;
 
     /// <summary>
