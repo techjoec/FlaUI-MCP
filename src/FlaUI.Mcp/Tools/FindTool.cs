@@ -34,9 +34,11 @@ public class FindTool : ToolBase
             role = new
             {
                 type = "string",
-                description = "Element role: button, textbox, text, checkbox, radio, combobox, listitem, menuitem, tab, link, image, group, window",
+                description = "Element role to search for",
                 @enum = new[] { "button", "textbox", "text", "checkbox", "radio", "combobox",
-                               "listitem", "menuitem", "tab", "link", "image", "group", "window" }
+                               "listitem", "menuitem", "menu", "menubar", "tab", "tablist",
+                               "link", "image", "group", "window", "toolbar", "status",
+                               "titlebar", "list", "tree", "treeitem", "slider" }
             },
             name_contains = new
             {
@@ -208,9 +210,19 @@ public class FindTool : ToolBase
         "checkbox" => ControlType.CheckBox,
         "radio" => ControlType.RadioButton,
         "combobox" => ControlType.ComboBox,
+        "list" => ControlType.List,
         "listitem" => ControlType.ListItem,
+        "menu" => ControlType.Menu,
         "menuitem" => ControlType.MenuItem,
+        "menubar" => ControlType.MenuBar,
+        "tree" => ControlType.Tree,
+        "treeitem" => ControlType.TreeItem,
+        "tablist" => ControlType.Tab,
         "tab" => ControlType.TabItem,
+        "toolbar" => ControlType.ToolBar,
+        "status" => ControlType.StatusBar,
+        "titlebar" => ControlType.TitleBar,
+        "slider" => ControlType.Slider,
         "link" => ControlType.Hyperlink,
         "image" => ControlType.Image,
         "group" => ControlType.Group,
