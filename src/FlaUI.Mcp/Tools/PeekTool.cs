@@ -125,31 +125,4 @@ public class PeekTool : ToolBase
         }
     }
 
-    private string GetRoleName(AutomationElement element)
-    {
-        return element.Properties.ControlType.ValueOrDefault switch
-        {
-            ControlType.Button => "button",
-            ControlType.Edit => "textbox",
-            ControlType.Text => "text",
-            ControlType.CheckBox => "checkbox",
-            ControlType.ComboBox => "combobox",
-            ControlType.ListItem => "listitem",
-            ControlType.MenuItem => "menuitem",
-            ControlType.TabItem => "tab",
-            _ => "element"
-        };
-    }
-
-    private Window? FindParentWindow(AutomationElement element)
-    {
-        var current = element;
-        while (current != null)
-        {
-            if (current.Properties.ControlType.ValueOrDefault == ControlType.Window)
-                return current.AsWindow();
-            current = current.Parent;
-        }
-        return null;
-    }
 }

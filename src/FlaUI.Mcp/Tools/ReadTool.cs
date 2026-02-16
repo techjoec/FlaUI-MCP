@@ -268,38 +268,6 @@ public class ReadTool : ToolBase
         return null;
     }
 
-    private string GetRoleName(AutomationElement element)
-    {
-        try
-        {
-            return element.Properties.ControlType.ValueOrDefault switch
-            {
-                ControlType.Button => "button",
-                ControlType.Edit => "textbox",
-                ControlType.Text => "text",
-                ControlType.CheckBox => "checkbox",
-                ControlType.RadioButton => "radio",
-                ControlType.ComboBox => "combobox",
-                ControlType.ListItem => "listitem",
-                ControlType.MenuItem => "menuitem",
-                ControlType.Menu => "menu",
-                ControlType.MenuBar => "menubar",
-                ControlType.TabItem => "tab",
-                ControlType.ToolBar => "toolbar",
-                ControlType.StatusBar => "status",
-                ControlType.TitleBar => "titlebar",
-                ControlType.List => "list",
-                ControlType.Group => "group",
-                ControlType.Window => "window",
-                ControlType.Hyperlink => "link",
-                ControlType.Image => "image",
-                ControlType.Pane => "group",
-                _ => "element"
-            };
-        }
-        catch { return "element"; }
-    }
-
     private List<string> GetStates(AutomationElement element)
     {
         var states = new List<string>();
@@ -331,15 +299,4 @@ public class ReadTool : ToolBase
         return states;
     }
 
-    private Window? FindParentWindow(AutomationElement element)
-    {
-        var current = element;
-        while (current != null)
-        {
-            if (current.Properties.ControlType.ValueOrDefault == ControlType.Window)
-                return current.AsWindow();
-            current = current.Parent;
-        }
-        return null;
-    }
 }

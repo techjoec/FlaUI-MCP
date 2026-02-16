@@ -270,15 +270,4 @@ public class FindTool : ToolBase
         }
     }
 
-    private Window? FindParentWindow(AutomationElement element)
-    {
-        var current = element;
-        while (current != null)
-        {
-            if (current.Properties.ControlType.ValueOrDefault == ControlType.Window)
-                return current.AsWindow();
-            current = current.Parent;
-        }
-        return null;
-    }
 }

@@ -93,39 +93,10 @@ public class StatusTool : ToolBase
         }
     }
 
-    private Window? FindParentWindow(AutomationElement element)
-    {
-        var current = element;
-        while (current != null)
-        {
-            if (current.Properties.ControlType.ValueOrDefault == ControlType.Window)
-                return current.AsWindow();
-            current = current.Parent;
-        }
-        return null;
-    }
-
     private string? GetProcessName(int pid)
     {
         try { return System.Diagnostics.Process.GetProcessById(pid)?.ProcessName; }
         catch { return null; }
-    }
-
-    private string GetRoleName(AutomationElement element)
-    {
-        return element.Properties.ControlType.ValueOrDefault switch
-        {
-            ControlType.Button => "button",
-            ControlType.Edit => "textbox",
-            ControlType.Text => "text",
-            ControlType.CheckBox => "checkbox",
-            ControlType.RadioButton => "radio",
-            ControlType.ComboBox => "combobox",
-            ControlType.ListItem => "listitem",
-            ControlType.MenuItem => "menuitem",
-            ControlType.TabItem => "tab",
-            _ => "element"
-        };
     }
 
     private string? GetValuePattern(AutomationElement element)
