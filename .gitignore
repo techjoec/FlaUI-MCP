@@ -49,3 +49,6 @@ Desktop.ini
 # Session files
 TestFlaUI/
 *.csx
+
+# secrets
+.env
