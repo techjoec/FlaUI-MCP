@@ -158,7 +158,7 @@ cd FlaUI-MCP
 dotnet build src/FlaUI.Mcp
 
 # Note the output path
-# Default: src\FlaUI.Mcp\bin\Debug\net8.0-windows\FlaUI.Mcp.dll
+# Default: src\FlaUI.Mcp\bin\Debug\net10.0-windows\FlaUI.Mcp.dll
 ```
 
 Or download a release and extract it.
@@ -167,7 +167,7 @@ Or download a release and extract it.
 
 You'll need the full path to `FlaUI.Mcp.dll` for the MCP config. For example:
 ```
-C:\Users\YourName\FlaUI-MCP\src\FlaUI.Mcp\bin\Debug\net8.0-windows\FlaUI.Mcp.dll
+C:\Users\YourName\FlaUI-MCP\src\FlaUI.Mcp\bin\Debug\net10.0-windows\FlaUI.Mcp.dll
 ```
 
 ---
@@ -193,7 +193,7 @@ Add the MCP server to your Claude Code configuration.
         "-o", "ServerAliveCountMax=3",
         "windows-vm",
         "dotnet",
-        "C:/Users/YourName/FlaUI-MCP/src/FlaUI.Mcp/bin/Debug/net8.0-windows/FlaUI.Mcp.dll"
+        "C:/Users/YourName/FlaUI-MCP/src/FlaUI.Mcp/bin/Debug/net10.0-windows/FlaUI.Mcp.dll"
       ]
     }
   }
@@ -284,7 +284,7 @@ Then send a test MCP message:
 ```
 
 You should get a JSON response. If not, check:
-- .NET 8 runtime is installed on Windows
+- .NET 10 runtime is installed on Windows
 - Path to DLL is correct (use forward slashes or escaped backslashes)
 
 ### Path Issues

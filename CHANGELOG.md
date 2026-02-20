@@ -30,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Documentation:**
   - README with installation and usage instructions
-  - GitHub Actions for CI/CD
   - MIT License
 
 ### Technical Details
