@@ -50,5 +50,13 @@ Desktop.ini
 TestFlaUI/
 *.csx
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
+
 # secrets
 .env
