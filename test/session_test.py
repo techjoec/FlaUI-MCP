@@ -67,7 +67,7 @@ async def run_notepad_test():
             # --- Step 1: Launch Notepad ---
             print("--- Step 1: Launch Notepad ---")
             launch = await call_tool(session, "windows_launch", {"app": "notepad.exe"})
-            is_not_error = not launch.get("isError", True)
+            is_not_error = not launch.get("isError", False)
             result.check("Launch Notepad", is_not_error,
                          json.dumps(launch) if not is_not_error else "")
 
@@ -87,7 +87,7 @@ async def run_notepad_test():
             print("\n--- Step 2: Take snapshot ---")
             if window_handle:
                 snapshot = await call_tool(session, "windows_snapshot", {"windowId": window_handle})
-                snap_ok = not snapshot.get("isError", True)
+                snap_ok = not snapshot.get("isError", False)
                 result.check("Snapshot succeeded", snap_ok,
                              json.dumps(snapshot) if not snap_ok else "")
 
@@ -104,7 +104,7 @@ async def run_notepad_test():
             # --- Step 3: Verify window in list ---
             print("\n--- Step 3: Verify window in list ---")
             windows = await call_tool(session, "windows_list_windows")
-            list_ok = not windows.get("isError", True)
+            list_ok = not windows.get("isError", False)
             result.check("List windows succeeded", list_ok)
 
             if list_ok and window_handle:
@@ -117,7 +117,7 @@ async def run_notepad_test():
             print("\n--- Step 4: Close window ---")
             if window_handle:
                 close = await call_tool(session, "windows_close", {"windowId": window_handle})
-                close_ok = not close.get("isError", True)
+                close_ok = not close.get("isError", False)
                 result.check("Close window succeeded", close_ok,
                              json.dumps(close) if not close_ok else "")
             else:
@@ -128,7 +128,7 @@ async def run_notepad_test():
             # --- Step 5: Verify window is gone ---
             print("\n--- Step 5: Verify window is gone ---")
             windows2 = await call_tool(session, "windows_list_windows")
-            list2_ok = not windows2.get("isError", True)
+            list2_ok = not windows2.get("isError", False)
             result.check("List windows after close succeeded", list2_ok)
 
             if list2_ok and window_handle:

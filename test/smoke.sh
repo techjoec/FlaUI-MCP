@@ -51,7 +51,14 @@ TOOLS_JSON=$("$FLAUI_PYTHON" "$SCRIPT_DIR/mcp_client.py" list 2>/dev/null) || tr
 if [ -z "$TOOLS_JSON" ]; then
     fail "MCP initialize + tools/list (no response)"
 else
-    TOOL_COUNT=$(echo "$TOOLS_JSON" | "$FLAUI_PYTHON" -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null) || TOOL_COUNT=0
+    TOOL_COUNT=$(printf '%s' "$TOOLS_JSON" | "$FLAUI_PYTHON" -c "
+import sys, json
+data = sys.stdin.read()
+if not data.strip():
+    print(0)
+else:
+    print(len(json.loads(data)))
+" 2>/dev/null) || TOOL_COUNT=0
     if [ "$TOOL_COUNT" -eq "$EXPECTED_TOOLS" ]; then
         pass "tools/list returned $TOOL_COUNT tools"
     else
@@ -67,7 +74,14 @@ CALL_JSON=$("$FLAUI_PYTHON" "$SCRIPT_DIR/mcp_client.py" call windows_list_window
 if [ -z "$CALL_JSON" ]; then
     fail "windows_list_windows (no response)"
 else
-    IS_ERROR=$(echo "$CALL_JSON" | "$FLAUI_PYTHON" -c "import sys,json; print(json.load(sys.stdin).get('isError', False))" 2>/dev/null) || IS_ERROR="True"
+    IS_ERROR=$(printf '%s' "$CALL_JSON" | "$FLAUI_PYTHON" -c "
+import sys, json
+data = sys.stdin.read()
+if not data.strip():
+    print('True')
+else:
+    print(json.loads(data).get('isError', False))
+" 2>/dev/null) || IS_ERROR="True"
     if [ "$IS_ERROR" = "False" ]; then
         pass "windows_list_windows returned successfully"
     else

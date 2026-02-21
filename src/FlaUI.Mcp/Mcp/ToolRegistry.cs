@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using PlaywrightWindows.Mcp.Core;
 using PlaywrightWindows.Mcp.Models;
 
 namespace PlaywrightWindows.Mcp;
@@ -194,51 +195,11 @@ public abstract class ToolBase : ITool
     }
 
     protected static string GetRoleName(AutomationElement element)
-    {
-        try
-        {
-            return element.Properties.ControlType.ValueOrDefault switch
-            {
-                ControlType.Button => "button",
-                ControlType.Edit => "textbox",
-                ControlType.Text => "text",
-                ControlType.CheckBox => "checkbox",
-                ControlType.RadioButton => "radio",
-                ControlType.ComboBox => "combobox",
-                ControlType.List => "list",
-                ControlType.ListItem => "listitem",
-                ControlType.Menu => "menu",
-                ControlType.MenuItem => "menuitem",
-                ControlType.MenuBar => "menubar",
-                ControlType.Tree => "tree",
-                ControlType.TreeItem => "treeitem",
-                ControlType.Tab => "tablist",
-                ControlType.TabItem => "tab",
-                ControlType.Table => "table",
-                ControlType.DataItem => "row",
-                ControlType.Header => "header",
-                ControlType.HeaderItem => "columnheader",
-                ControlType.Slider => "slider",
-                ControlType.Spinner => "spinbutton",
-                ControlType.ProgressBar => "progressbar",
-                ControlType.Hyperlink => "link",
-                ControlType.Image => "image",
-                ControlType.Pane => "group",
-                ControlType.Group => "group",
-                ControlType.Window => "window",
-                ControlType.Document => "document",
-                ControlType.ToolBar => "toolbar",
-                ControlType.ToolTip => "tooltip",
-                ControlType.ScrollBar => "scrollbar",
-                ControlType.StatusBar => "status",
-                ControlType.Separator => "separator",
-                ControlType.Thumb => "thumb",
-                ControlType.TitleBar => "titlebar",
-                ControlType.DataGrid => "grid",
-                ControlType.Custom => "custom",
-                _ => "element"
-            };
-        }
-        catch { return "element"; }
-    }
+        => AutomationHelpers.GetRoleName(element);
+
+    protected static string? GetElementName(AutomationElement element)
+        => AutomationHelpers.GetElementName(element);
+
+    protected static List<string> GetStates(AutomationElement element)
+        => AutomationHelpers.GetStates(element);
 }

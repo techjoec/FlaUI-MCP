@@ -47,8 +47,8 @@ public class SnapshotBuilder
         if (depth > MaxDepth) return;
 
         // Skip elements with no meaningful content
-        var name = GetElementName(element);
-        var role = GetElementRole(element);
+        var name = AutomationHelpers.GetElementName(element);
+        var role = AutomationHelpers.GetRoleName(element);
 
         // Apply filter
         if (!PassesFilter(role))
@@ -142,143 +142,13 @@ public class SnapshotBuilder
         parts.Add($"[ref={refId}]");
 
         // State indicators
-        var states = GetStateIndicators(element);
+        var states = AutomationHelpers.GetStates(element);
         if (states.Count > 0)
         {
             parts.AddRange(states.Select(s => $"[{s}]"));
         }
 
         return string.Join(" ", parts);
-    }
-
-    private string GetElementRole(AutomationElement element)
-    {
-        try
-        {
-            var controlType = element.Properties.ControlType.ValueOrDefault;
-            return controlType switch
-            {
-                ControlType.Button => "button",
-                ControlType.Edit => "textbox",
-                ControlType.Text => "text",
-                ControlType.CheckBox => "checkbox",
-                ControlType.RadioButton => "radio",
-                ControlType.ComboBox => "combobox",
-                ControlType.List => "list",
-                ControlType.ListItem => "listitem",
-                ControlType.Menu => "menu",
-                ControlType.MenuItem => "menuitem",
-                ControlType.MenuBar => "menubar",
-                ControlType.Tree => "tree",
-                ControlType.TreeItem => "treeitem",
-                ControlType.Tab => "tablist",
-                ControlType.TabItem => "tab",
-                ControlType.Table => "table",
-                ControlType.DataItem => "row",
-                ControlType.Header => "header",
-                ControlType.HeaderItem => "columnheader",
-                ControlType.Slider => "slider",
-                ControlType.Spinner => "spinbutton",
-                ControlType.ProgressBar => "progressbar",
-                ControlType.Hyperlink => "link",
-                ControlType.Image => "image",
-                ControlType.Pane => "group",
-                ControlType.Group => "group",
-                ControlType.Window => "window",
-                ControlType.Document => "document",
-                ControlType.ToolBar => "toolbar",
-                ControlType.ToolTip => "tooltip",
-                ControlType.ScrollBar => "scrollbar",
-                ControlType.StatusBar => "status",
-                ControlType.Separator => "separator",
-                ControlType.Thumb => "thumb",
-                ControlType.TitleBar => "titlebar",
-                ControlType.DataGrid => "grid",
-                ControlType.Custom => "custom",
-                _ => "element"
-            };
-        }
-        catch
-        {
-            return "element";
-        }
-    }
-
-    private string? GetElementName(AutomationElement element)
-    {
-        try
-        {
-            var name = element.Properties.Name.ValueOrDefault;
-            if (!string.IsNullOrWhiteSpace(name)) return name;
-
-            // Try automation ID as fallback for identification
-            var automationId = element.Properties.AutomationId.ValueOrDefault;
-            if (!string.IsNullOrWhiteSpace(automationId) && automationId.Length < 50)
-            {
-                return $"[{automationId}]";
-            }
-
-            return null;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private List<string> GetStateIndicators(AutomationElement element)
-    {
-        var states = new List<string>();
-
-        try
-        {
-            if (!element.Properties.IsEnabled.ValueOrDefault)
-                states.Add("disabled");
-
-            if (element.Properties.IsOffscreen.ValueOrDefault)
-                states.Add("offscreen");
-
-            // Check for readonly (ValuePattern)
-            if (element.Patterns.Value.IsSupported)
-            {
-                var valuePattern = element.Patterns.Value.Pattern;
-                if (valuePattern.IsReadOnly.ValueOrDefault)
-                    states.Add("readonly");
-            }
-
-            // Check toggle state
-            if (element.Patterns.Toggle.IsSupported)
-            {
-                var toggleState = element.Patterns.Toggle.Pattern.ToggleState.ValueOrDefault;
-                if (toggleState == ToggleState.On)
-                    states.Add("checked");
-                else if (toggleState == ToggleState.Indeterminate)
-                    states.Add("indeterminate");
-            }
-
-            // Check selection state
-            if (element.Patterns.SelectionItem.IsSupported)
-            {
-                if (element.Patterns.SelectionItem.Pattern.IsSelected.ValueOrDefault)
-                    states.Add("selected");
-            }
-
-            // Check expanded state
-            if (element.Patterns.ExpandCollapse.IsSupported)
-            {
-                var expandState = element.Patterns.ExpandCollapse.Pattern.ExpandCollapseState.ValueOrDefault;
-                if (expandState == ExpandCollapseState.Expanded)
-                    states.Add("expanded");
-                else if (expandState == ExpandCollapseState.Collapsed)
-                    states.Add("collapsed");
-            }
-        }
-        catch
-        {
-            // Ignore state query errors
-        }
-
-        return states;
     }
 
     private bool ShouldSkipElement(AutomationElement element, string? name, string role)

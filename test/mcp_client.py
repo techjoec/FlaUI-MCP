@@ -73,11 +73,14 @@ async def call_tool(session: ClientSession, name: str, arguments: dict | None = 
             except (json.JSONDecodeError, TypeError):
                 pass
         elif item.type == "image":
-            entry["mimeType"] = item.mimeType
-            entry["data_length"] = len(item.data) if item.data else 0
+            entry["mimeType"] = getattr(item, "mimeType", None)
+            entry["data_length"] = len(item.data) if getattr(item, "data", None) else 0
+        elif item.type == "resource":
+            entry["uri"] = getattr(item, "uri", None)
+            entry["mimeType"] = getattr(item, "mimeType", None)
         contents.append(entry)
     return {
-        "isError": result.isError if hasattr(result, "isError") else False,
+        "isError": result.isError,
         "content": contents,
     }
 
